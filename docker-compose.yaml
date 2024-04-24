@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: my_database
+    ports:
+      - "3307:3306"  # Expose port 3306 to the host
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persist MySQL data
+
+  express_app:
+    build:
+      context: .  # Directory containing Dockerfile and app code
+    environment:
+      DB_HOST: mysql  # Hostname of the MySQL service
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root_password
+      DB_NAME: my_database
+    ports:
+      - "8080:8080"  # Expose port 8080 to the host
+    depends_on:
+      - mysql  # Ensure MySQL is up before starting Express
+
+volumes:
+  mysql_data:  # Volume for persisting MySQL data
